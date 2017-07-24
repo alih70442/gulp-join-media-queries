@@ -5,7 +5,7 @@ var defaults = require('lodash.defaults');
 var parseCss = require('css-parse');
 var path = require('path');
 
-var PLUGIN_NAME = 'gulp-combine-media-queries';
+var PLUGIN_NAME = 'gulp-join-media-queries';
 
 module.exports = function(options) {
   'use strict';
@@ -115,6 +115,18 @@ module.exports = function(options) {
     return strCss;
   };
 
+  // Process pages
+  var processPage = function(pages) {
+    var strCss = '';
+    strCss += '@page {\n\n';
+    pages.declarations.forEach(function(page) {
+      strCss += commentOrDeclaration(page);
+    });
+    strCss += '}\n\n';
+
+    return strCss;
+  };
+
   function transform(file, enc, cb) {
 
     if (file.isNull()) {
@@ -138,6 +150,7 @@ module.exports = function(options) {
     log('File ' + filename + ' found.');
 
     processedCSS.imports = [];
+    processedCSS.pages = [];
     processedCSS.base = [];
     processedCSS.media = [];
     processedCSS.media.all = [];
@@ -157,6 +170,10 @@ module.exports = function(options) {
       // If the rule type is an import
       if(rule.type === 'import') {
         processedCSS.imports.push(rule);
+      }
+
+      if(rule.type === 'page') {
+        processedCSS.pages.push(rule);
       }
 
       // if the rule is a media query...
@@ -285,6 +302,13 @@ module.exports = function(options) {
       });
     };
 
+     // Function to output page
+    var outputPages = function(base){
+      base.forEach(function (rule) {
+        strStyles += processPage(rule);
+      });
+    };
+
     // Function to output base CSS
     var outputBase = function(base) {
       base.forEach(function(rule) {
@@ -339,6 +363,11 @@ module.exports = function(options) {
     // Check if keyframes were processed and print them
     if (processedCSS.keyframes.length !== 0) {
       outputKeyFrames(processedCSS.keyframes);
+    }
+
+    // Check if page were processed and print them
+    if (processedCSS.pages.length !== 0) {
+      outputPages(processedCSS.pages);
     }
 
     // Define the new file extension
