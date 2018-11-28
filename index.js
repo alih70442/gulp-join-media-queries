@@ -128,11 +128,16 @@ module.exports = function(options) {
   };
 
   // Process supports
-  var processSupports = function(pages) {
+  var processSupports = function(supports) {
     var strCss = '';
-    strCss += '@supports {\n\n';
-    supports.declarations.forEach(function(page) {
-      strCss += commentOrDeclaration(page);
+    strCss += '@supports ' + supports.supports + '{\n\n';
+    supports.rules.forEach(function(rule) {
+      if (rule.type == 'media') {
+        rule.rule = rule.media;
+        strCss += processMedia(rule);
+      } else {
+        strCss += commentOrRule(rule);
+      }
     });
     strCss += '}\n\n';
 
