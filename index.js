@@ -130,7 +130,7 @@ module.exports = function(options) {
   // Process supports
   var processSupports = function(supports) {
     var strCss = '';
-    strCss += '@supports ' + supports.supports + '{\n\n';
+    strCss += '@supports ' + supports.supports + ' {\n\n';
     supports.rules.forEach(function(rule) {
       if (rule.type == 'media') {
         rule.rule = rule.media;
