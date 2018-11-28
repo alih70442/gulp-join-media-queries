@@ -127,6 +127,18 @@ module.exports = function(options) {
     return strCss;
   };
 
+  // Process supports
+  var processSupports = function(pages) {
+    var strCss = '';
+    strCss += '@supports {\n\n';
+    supports.declarations.forEach(function(page) {
+      strCss += commentOrDeclaration(page);
+    });
+    strCss += '}\n\n';
+
+    return strCss;
+  };
+
   function transform(file, enc, cb) {
 
     if (file.isNull()) {
@@ -151,6 +163,7 @@ module.exports = function(options) {
 
     processedCSS.imports = [];
     processedCSS.pages = [];
+    processedCSS.supports = [];
     processedCSS.base = [];
     processedCSS.media = [];
     processedCSS.media.all = [];
@@ -174,6 +187,10 @@ module.exports = function(options) {
 
       if(rule.type === 'page') {
         processedCSS.pages.push(rule);
+      }
+
+      if(rule.type === 'supports') {
+        processedCSS.supports.push(rule);
       }
 
       // if the rule is a media query...
@@ -302,10 +319,17 @@ module.exports = function(options) {
       });
     };
 
-     // Function to output page
+    // Function to output page
     var outputPages = function(base){
       base.forEach(function (rule) {
         strStyles += processPage(rule);
+      });
+    };
+
+    // Function to output supports
+    var outputSupports = function(base){
+      base.forEach(function (rule) {
+        strStyles += processSupports(rule);
       });
     };
 
@@ -368,6 +392,11 @@ module.exports = function(options) {
     // Check if page were processed and print them
     if (processedCSS.pages.length !== 0) {
       outputPages(processedCSS.pages);
+    }
+
+    // Check if supports were processed and print them
+    if (processedCSS.supports.length !== 0) {
+      outputSupports(processedCSS.supports);
     }
 
     // Define the new file extension
