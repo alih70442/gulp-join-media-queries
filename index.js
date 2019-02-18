@@ -36,7 +36,6 @@ module.exports = function (options) {
 		return strCss;
 	};
 
-
 	// Process comments
 	var processComment = function (comment) {
 		var strCss = '/*' + comment.comment + '*/';
@@ -125,7 +124,7 @@ module.exports = function (options) {
 	// Process pages
 	var processPage = function (pages) {
 		var strCss = '';
-		strCss += '@page {\n\n';
+		strCss += '@page ' + pages.selectors.join('') + ' {\n\n';
 		pages.declarations.forEach(function (page) {
 			strCss += commentOrDeclaration(page);
 		});
