@@ -30,6 +30,13 @@ module.exports = function(options) {
     return strCss;
   };
 
+  // Process Charsets
+  var processCharset = function(cssCharset) {
+    var strCss = '@charset ' + cssCharset.charset + ';' + '\n\n';
+    return strCss;
+  };
+
+
   // Process comments
   var processComment = function(comment) {
     var strCss = '/*' + comment.comment + '*/';
@@ -167,6 +174,7 @@ module.exports = function(options) {
     log('File ' + filename + ' found.');
 
     processedCSS.imports = [];
+    processedCSS.charsets = [];
     processedCSS.pages = [];
     processedCSS.supports = [];
     processedCSS.base = [];
@@ -188,6 +196,11 @@ module.exports = function(options) {
       // If the rule type is an import
       if(rule.type === 'import') {
         processedCSS.imports.push(rule);
+      }
+
+      // If the rule type is a charset
+      if(rule.type === 'charset') {
+        processedCSS.charsets.push(rule);
       }
 
       if(rule.type === 'page') {
@@ -324,6 +337,13 @@ module.exports = function(options) {
       });
     };
 
+    // Function to output CSS charset declarations
+    var outputCharsets = function(base){
+      base.forEach(function (rule) {
+        strStyles += processCharset(rule);
+      });
+    };
+
     // Function to output page
     var outputPages = function(base){
       base.forEach(function (rule) {
@@ -357,8 +377,7 @@ module.exports = function(options) {
         });
       }
 
-    }
-    ;
+    };
 
     // Function to output keyframes
     var outputKeyFrames = function(keyframes) {
@@ -370,6 +389,11 @@ module.exports = function(options) {
     // Check if the imports CSS was processed and print them
     if (processedCSS.imports.length !== 0){
       outputImports(processedCSS.imports);
+    }
+
+    // Check if the charsets CSS was processed and print them
+    if (processedCSS.charsets.length !== 0){
+      outputCharsets(processedCSS.charsets);
     }
 
     // Check if base CSS was processed and print them
