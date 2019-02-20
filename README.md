@@ -43,7 +43,7 @@ Writes media queries into external file, named as [src].responsive.css
 
 (MIT License)
 
-Copyright (C) 2017-2018 by Mausbrand Informationssysteme GmbH.
+Copyright (C) 2017-2019 by Mausbrand Informationssysteme GmbH.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
