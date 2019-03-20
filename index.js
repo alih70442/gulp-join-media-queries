@@ -26,26 +26,22 @@ module.exports = function (options) {
 
 	// Process Imports
 	var processImport = function (cssImport) {
-		var strCss = '@import ' + cssImport.import + ';' + '\n\n';
-		return strCss;
+		return '@import ' + cssImport.import + ';' + '\n\n';
 	};
 
 	// Process Charsets
 	var processCharset = function (cssCharset) {
-		var strCss = '@charset ' + cssCharset.charset + ';' + '\n\n';
-		return strCss;
+		return '@charset ' + cssCharset.charset + ';' + '\n\n';
 	};
 
 	// Process comments
 	var processComment = function (comment) {
-		var strCss = '/*' + comment.comment + '*/';
-		return strCss;
+		return '/*' + comment.comment + '*/';
 	};
 
 	// Process declaration
 	var processDeclaration = function (declaration) {
-		var strCss = declaration.property + ': ' + declaration.value + ';';
-		return strCss;
+		return declaration.property + ': ' + declaration.value + ';';
 	};
 
 	// Check declarations type
@@ -62,7 +58,11 @@ module.exports = function (options) {
 	// Process normal CSS rule
 	var processRule = function (rule) {
 		var strCss = '';
-		strCss += rule.selectors.join(',\n') + ' {';
+		if (rule.type == 'font-face') {
+			strCss += '@font-face {';
+		} else {
+			strCss += rule.selectors.join(',\n') + ' {';
+		}
 		rule.declarations.forEach(function (rules) {
 			strCss += commentOrDeclaration(rules);
 		});
@@ -73,7 +73,7 @@ module.exports = function (options) {
 	// Check rule type
 	var commentOrRule = function (rule) {
 		var strCss = '';
-		if (rule.type === 'rule') {
+		if (rule.type === 'rule' || rule.type === 'font-face') {
 			strCss += processRule(rule);
 		} else if (rule.type === 'comment') {
 			strCss += processComment(rule) + '\n\n';
@@ -124,7 +124,7 @@ module.exports = function (options) {
 	// Process pages
 	var processPage = function (pages) {
 		var strCss = '';
-		strCss += '@page ' + pages.selectors.join('') + ' {\n\n';
+		strCss += '@page ' + pages.selectors.join('') + ' {';
 		pages.declarations.forEach(function (page) {
 			strCss += commentOrDeclaration(page);
 		});
@@ -136,7 +136,7 @@ module.exports = function (options) {
 	// Process supports
 	var processSupports = function (supports) {
 		var strCss = '';
-		strCss += '@supports ' + supports.supports + ' {\n\n';
+		strCss += '@supports ' + supports.supports + ' {';
 		supports.rules.forEach(function (rule) {
 			if (rule.type == 'media') {
 				rule.rule = rule.media;
@@ -198,20 +198,20 @@ module.exports = function (options) {
 			}
 
 			// If the rule type is a charset
-			if (rule.type === 'charset') {
+			else if (rule.type === 'charset') {
 				processedCSS.charsets.push(rule);
 			}
 
-			if (rule.type === 'page') {
+			else if (rule.type === 'page') {
 				processedCSS.pages.push(rule);
 			}
 
-			if (rule.type === 'supports') {
+			else if (rule.type === 'supports') {
 				processedCSS.supports.push(rule);
 			}
 
 			// if the rule is a media query...
-			if (rule.type === 'media') {
+			else if (rule.type === 'media') {
 
 				// Create 'id' based on the query (stripped from spaces and dashes etc.)
 				var strMedia = rule.media.replace(/[^A-Za-z0-9]/ig, '');
@@ -245,7 +245,7 @@ module.exports = function (options) {
 
 				// Push every merged query
 				rule.rules.forEach(function (mediaRule) {
-					if (mediaRule.type === 'rule' || 'comment') {
+					if (mediaRule.type === 'rule' || mediaRule.type === 'comment') {
 						processedCSS.media[i].rules.push(mediaRule);
 					}
 				});
@@ -253,8 +253,10 @@ module.exports = function (options) {
 			} else if (rule.type === 'keyframes') {
 				processedCSS.keyframes.push(rule);
 
-			} else if (rule.type === 'rule' || 'comment') {
+			} else if (rule.type === 'rule' || rule.type === 'comment' || rule.type === 'font-face') {
 				processedCSS.base.push(rule);
+			} else {
+				log(rule.type + ' is currently not supported');
 			}
 		});
 
