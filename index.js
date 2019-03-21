@@ -128,7 +128,7 @@ module.exports = function (options) {
 		pages.declarations.forEach(function (page) {
 			strCss += commentOrDeclaration(page);
 		});
-		strCss += '}\n\n';
+		strCss += '\n}\n\n';
 
 		return strCss;
 	};
