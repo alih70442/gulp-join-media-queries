@@ -1,11 +1,14 @@
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
-var through = require('through2');
-var defaults = require('lodash.defaults');
-var parseCss = require('css-parse');
-var path = require('path');
+const path = require('path');
+const through = require('through2');
+const defaults = require('lodash.defaults');
+const parseCss = require('css-parse');
+const pluginError = require('plugin-error');
+const fLog = require('fancy-log');
+const color = require('ansi-colors');
+const replaceExt = require('replace-ext');
+const vinyl = require('vinyl');
 
-var PLUGIN_NAME = 'gulp-join-media-queries';
+const PLUGIN_NAME = 'gulp-join-media-queries';
 
 module.exports = function (options) {
 	'use strict';
@@ -20,7 +23,7 @@ module.exports = function (options) {
 	// Log info only when 'options.log' is set to true
 	var log = function (message) {
 		if (options.log) {
-			gutil.log(message);
+			fLog(message);
 		}
 	};
 
@@ -158,7 +161,7 @@ module.exports = function (options) {
 		}
 
 		if (file.isStream()) {
-			this.emit('error', new PluginError(PLUGIN_NAME, 'Streaming not supported'));
+			this.emit('error', new pluginError(PLUGIN_NAME, 'Streaming not supported'));
 			return cb();
 		}
 
@@ -431,20 +434,20 @@ module.exports = function (options) {
 
 		// Define the new file extension
 		if (options.ext) {
-			file.path = gutil.replaceExtension(file.path, options.ext);
+			file.path = replaceExt(file.path, options.ext);
 		}
 
 		// Write the new file
 		file.contents = new Buffer(strStyles);
-		log(gutil.colors.cyan('File ' + filename + ' created.'));
+		log(color.cyan('File ' + filename + ' created.'));
 
 		if (options.use_external && processedCSS.media.length !== 0) {
-			var f = new gutil.File({
+			var f = new vinyl({
 				base: file.base,
 				path: extFilename,
 				contents: new Buffer(strMediaStyles)
 			});
-			log(gutil.colors.cyan('File ' + extFilename + ' created.'));
+			log(color.cyan('File ' + extFilename + ' created.'));
 		}
 		this.push(file);
 		if (options.use_external && processedCSS.media.length !== 0) {
