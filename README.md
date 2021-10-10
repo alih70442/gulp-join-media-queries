@@ -14,7 +14,7 @@ npm install gulp-join-media-queries --save-dev
 
 ## Usage
 ```javascript
-var jmq = require('join-merge-media-queries');
+var jmq = require('gulp-join-media-queries');
 
 gulp.task('jmq', function () {
   gulp.src('src/**/*.css')
